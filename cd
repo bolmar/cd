@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+
+
+${C:-./CD} $(tr -d [:alpha:][:blank:]ä <<<"$@" | tr . , | tr , ' ')
