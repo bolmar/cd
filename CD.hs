@@ -84,7 +84,7 @@ trees' v = concatMap (\t -> concatMap (\o -> insert o (L v) t) ops)
 
 eval target tree =
   let r = evaluate tree
-      d = target - r
+      d = r - target
   in S r d tree
 
 review (S r d tree) = do
