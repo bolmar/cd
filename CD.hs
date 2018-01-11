@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-}
 module CD where
 
 import qualified System.Environment as Env
@@ -75,7 +76,7 @@ main = do
 takeBy :: (a -> Bool) -> [a] -> (Maybe a, [a])
 takeBy = Arr.first Maybe.listToMaybe · List.partition
 
-cd d target = flip State.evalState d . Mnd.filterM review . map (eval target) . candidates
+cd d target = flip State.evalState (d, []) . Mnd.filterM review . map (eval target) . candidates
 
 candidates = concatMap trees . filter (not . null) . concatMap List.subsequences . List.permutations
 
@@ -88,9 +89,9 @@ eval target tree =
   in S r d tree
 
 review (S r d tree) = do
-  epsilon <- State.get
+  (epsilon, trees) <- State.get
   let delta = abs d
-  if delta <= epsilon then
-    State.put delta >> return True
+  if delta <= epsilon && (not $ elem tree trees) then
+    State.put (delta, tree : trees) >> return True
   else
     return False
