@@ -2,4 +2,4 @@
 
 
 
-${C:-./CD} $(tr -d [:alpha:][:blank:]ä <<<"$@" | tr . , | tr , ' ')
+${C:-./CD} $(tr -d [:alpha:]ä. <<<"$@" | tr -s , ' ')
