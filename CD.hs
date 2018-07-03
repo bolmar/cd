@@ -91,7 +91,7 @@ eval target tree =
 review (S r d tree) = do
   (epsilon, trees) <- State.get
   let delta = abs d
-  if delta <= epsilon && (not $ elem tree trees) then
-    State.put (delta, tree : trees) >> return True
+  if delta <= epsilon && (not $ elem (show tree) trees) then
+    State.put (delta, (show tree) : trees) >> return True
   else
     return False
