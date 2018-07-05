@@ -28,7 +28,13 @@ evaluate (L v) = fromIntegral v
 evaluate (N o t1 t2) = op o (evaluate t1) (evaluate t2)
 
 data T v = L v | N Op (T v) (T v)
-  deriving Eq
+
+instance (Eq v) => Eq (T v) where
+    (L v1) == (L v2) = v1 == v2
+    (N Add ta1 ta2) == (N Add tb1 tb2) = (ta1 == tb2) && (tb1 == ta2)
+    (N Mul ta1 ta2) == (N Mul tb1 tb2) = (ta1 == tb2) && (tb1 == ta2)
+    (N oa ta1 ta2) == (N ob tb1 tb2) = (oa == ob) && (ta1 == tb1) && (ta2 == tb2)
+    _ == _ = False
 
 instance (Show v) => Show (T v) where
   show (L v) = show v
@@ -91,7 +97,7 @@ eval target tree =
 review (S r d tree) = do
   (epsilon, trees) <- State.get
   let delta = abs d
-  if delta <= epsilon && (not $ elem (show tree) trees) then
-    State.put (delta, (show tree) : trees) >> return True
+  if delta <= epsilon && (not $ elem tree trees) then
+    State.put (delta, tree : trees) >> return True
   else
     return False
