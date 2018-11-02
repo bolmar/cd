@@ -78,7 +78,7 @@ takeBy = Arr.first Maybe.listToMaybe · List.partition
 
 cd d target = flip State.evalState (d, []) . Mnd.filterM review . map (eval target) . candidates
 
-candidates = concatMap trees . filter (not . null) . concatMap List.subsequences . List.permutations
+candidates = concatMap trees . filter (not . null) . concatMap List.permutations . List.subsequences
 
 trees (v:vs) = foldr trees' [L v] vs
 trees' v = concatMap (\t -> concatMap (\o -> insert o (L v) t) ops)
