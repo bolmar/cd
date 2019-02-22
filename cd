@@ -1,5 +1,3 @@
 #!/usr/bin/env bash
 
-
-
-${C:-./CD} $(tr -d [:alpha:]ä. <<<"$@" | tr -s , ' ')
+${C:-./CD} $(tr -d [:alpha:]äå. <<<"$@" | tr -s , ' ')
