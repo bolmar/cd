@@ -1,3 +1,5 @@
 #!/usr/bin/env bash
 
-${C:-./CD} $(tr -d [:alpha:]äå. <<<"$@" | tr -s , ' ')
+shopt -s extglob
+
+${C:-./CD} $(tr -d [:alpha:]äå. <<<"${@//[a-z]+([0-9])}" | tr -s , ' ') $(grep -o '[a-z][0-9]\+' <<<"$@")
