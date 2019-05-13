@@ -67,7 +67,8 @@ insert o v (N o0 t1 t2) = N o (N o0 t1 t2) v : map (N o0 t1) (insert o v t2)
 
 data Solution result delta tree = S result delta tree
 instance (Show r, Show d, Show tr) => Show (Solution r d tr) where
-  show (S r d tr) = show r ++ "(" ++ show d ++ "): ,cd " ++ show tr
+  show (S r d tr) = ",cd " ++ show tr ++ "\n"
+                      ++ replicate 42 ' ' ++ show r ++ " (" ++ show d ++ ")"
 
 main = do
   (epsM, args) <- return . takeBy (List.isPrefixOf "e") =<< Env.getArgs
