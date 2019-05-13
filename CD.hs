@@ -34,7 +34,7 @@ instance (Show v) => Show (T v) where
   show (L v) = show v
   show (N o t1 t2) = showTerm o t1 t2
 
-showTerm o t1 t2 = showNode o t1 ++ " " ++ show o ++ " " ++ showNode o t2
+showTerm o t1 t2 = showNode (Left o) t1 ++ " " ++ show o ++ " " ++ showNode (Right o) t2
 
 infixr 9 ·
 (·) = (.) . (.)
@@ -42,10 +42,13 @@ infixr 9 ·
 showNode _ (L v) = show v
 showNode po (N o t1 t2) = showNode' po o t1 t2
 
--- avoid some redundant parentheses
-showNode' Add o = showTerm o
-showNode' Sub (o@Div) = showTerm o
-showNode' Div (o@Mul) = bracket · showTerm o
+-- avoid redundant parentheses
+showNode' (Left  Add) o = showTerm o
+showNode' (Right Add) o = showTerm o
+showNode' (Left  Sub) o = showTerm o
+showNode' (Right Sub) (o@Div) = showTerm o
+showNode' (Left  Mul) (o@Div) = showTerm o
+showNode' (Right Div) (o@Mul) = bracket · showTerm o
 showNode' _ (o@Mul) = showTerm o
 showNode' _ o = bracket · showTerm o
 
