@@ -71,7 +71,7 @@ instance (Show r, Show d, Show tr) => Show (Solution r d tr) where
                       ++ replicate 42 ' ' ++ show r ++ " (" ++ show d ++ ")"
 
 main = do
-  (epsM, args) <- return . takeBy (List.isPrefixOf "e") =<< Env.getArgs
+  (epsM, args) <- fmap (takeBy $ List.isPrefixOf "e") Env.getArgs
   let eps = Maybe.maybe 3 (read . tail) epsM :: Double
   let (target:vals) = map read args :: [Int]
 
@@ -95,7 +95,7 @@ eval target tree =
 review (S r d tree) = do
   (epsilon, trees) <- State.get
   let delta = abs d
-  if delta <= epsilon && (not $ elem (show tree) trees) then
-    State.put (delta, (show tree) : trees) >> return True
+  if delta <= epsilon && notElem (show tree) trees then
+    State.put (delta, show tree : trees) >> return True
   else
     return False
