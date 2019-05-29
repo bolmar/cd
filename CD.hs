@@ -46,13 +46,14 @@ showNode po (N o t1 t2) = showNode' po o t1 t2
 showNode' (Left  Add) o = showTerm o
 showNode' (Right Add) o = showTerm o
 showNode' (Left  Sub) o = showTerm o
-showNode' (Right Sub) (o@Div) = showTerm o
-showNode' (Left  Mul) (o@Div) = showTerm o
+showNode' (Right Div) (o@Div) = bracket · showTerm o
 showNode' (Right Div) (o@Mul) = bracket · showTerm o
+showNode' _ (o@Div) = showTerm o
 showNode' _ (o@Mul) = showTerm o
 showNode' _ o = bracket · showTerm o
 
-bracket str = "(" ++ str ++ ")"
+bracket :: String -> String
+bracket str = '(' : str ++ ")"
 
 {-
 insert * d (a - (b + c)) =
