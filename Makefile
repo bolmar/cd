@@ -1,4 +1,4 @@
-all: CD
+all: CD CDM
 
-CD: CD.hs
-	ghc --make -main-is CD CD.hs
+%: %.hs
+	ghc --make -main-is $* $(*).hs
