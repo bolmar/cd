@@ -1,4 +1,4 @@
 all: CD CDM
 
 %: %.hs
-	ghc --make -main-is $* $(*).hs
+	ghc -threaded --make -main-is $* $(*).hs
