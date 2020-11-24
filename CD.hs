@@ -75,7 +75,7 @@ main = do
   let eps = Maybe.maybe 3 (read . tail) epsM :: Double
   let (target:vals) = map read args :: [Int]
 
-  cd eps (fromIntegral target) vals
+  cd ((<=), eps) (fromIntegral target) vals
 
 takeBy :: (a -> Bool) -> [a] -> (Maybe a, [a])
 takeBy = Arr.first Maybe.listToMaybe · List.partition
@@ -85,7 +85,7 @@ cd d target = pretty . filterSolutions . generateSolutions
     generateSolutions = map (eval target) . candidates
     filterSolutions = flip State.runState (d, []) . Mnd.filterM review
 
-pretty ([], (d, ts)) = p $ Mnd.liftM (flip (++) (" : " ++ show d)) $ Maybe.listToMaybe ts
+pretty ([], ((_, d), ts)) = p $ Mnd.liftM (flip (++) (" : " ++ show d)) $ Maybe.listToMaybe ts
 pretty (s:_, _) = p $ Just $ show s ++ " : 0.0"
 
 p = putStrLn . (++) ",cd " . Maybe.fromMaybe "no solutions"
@@ -101,12 +101,12 @@ eval target tree =
   in S d tree
 
 review (S d tree) = do
-  (epsilon, trees) <- State.get
+  ((cmp, epsilon), trees) <- State.get
   let delta = abs d
   if delta == 0 then
-    State.put (delta, show tree : trees) >> return True
+    State.put (((<), delta), show tree : trees) >> return True
   else
-    if delta <= epsilon && notElem (show tree) trees then
-      State.put (delta, show tree : trees) >> return False
+    if cmp delta epsilon && notElem (show tree) trees then
+      State.put (((<), delta), show tree : trees) >> return False
     else
       return False
