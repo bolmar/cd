@@ -2,4 +2,9 @@
 
 shopt -s extglob
 
+echo $@
+target=$(sed 's/\(.*a \)\?\([0-9]\+\)\..*/\2/' <<<"$@")
+numbers=$(sed 's/.*nd \([0-9,]\+\) .*/\1/' <<<"$@" | tr , ' ')
+echo $target
+echo $numbers
 ${C:-./CD} $(tr -d [:alpha:]äå. <<<"${@//[a-z]+([0-9])}" | tr -s , ' ') $(grep -o '[a-z][0-9]\+' <<<"$@")
