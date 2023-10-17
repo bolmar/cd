@@ -5,6 +5,7 @@ import qualified System.Environment as Env
 import qualified Control.Arrow as Arr
 import qualified Control.Monad as Mnd
 import qualified Control.Monad.State.Lazy as State
+import Data.Function (on)
 import qualified Data.List as List
 import qualified Data.Maybe as Maybe
 
@@ -24,17 +25,17 @@ op Sub = (-)
 
 ops = [Add .. ]
 
-evaluate (L v) = fromIntegral v
-evaluate (N o t1 t2) = op o (evaluate t1) (evaluate t2)
-
 data T v = L v | N Op (T v) (T v)
   deriving Eq
+
+evaluate (L v) = fromIntegral v
+evaluate (N o t1 t2) = on (op o) evaluate t1 t2
 
 instance (Show v) => Show (T v) where
   show (L v) = show v
   show (N o t1 t2) = showTerm o t1 t2
 
-showTerm o t1 t2 = showNode (Left o) t1 ++ " " ++ show o ++ " " ++ showNode (Right o) t2
+showTerm o l r = unwords [showNode (Left o) l, show o, showNode (Right o) r]
 
 infixr 9 ·
 (·) = (.) . (.)
@@ -46,10 +47,10 @@ showNode po (N o t1 t2) = showNode' po o t1 t2
 showNode' (Left  Add) o = showTerm o
 showNode' (Right Add) o = showTerm o
 showNode' (Left  Sub) o = showTerm o
-showNode' (Right Div) (o@Div) = bracket · showTerm o
-showNode' (Right Div) (o@Mul) = bracket · showTerm o
-showNode' _ (o@Div) = showTerm o
-showNode' _ (o@Mul) = showTerm o
+showNode' (Right Div) o@Div = bracket · showTerm o
+showNode' (Right Div) o@Mul = bracket · showTerm o
+showNode' _ o@Div = showTerm o
+showNode' _ o@Mul = showTerm o
 showNode' _ o = bracket · showTerm o
 
 bracket :: String -> String
@@ -85,14 +86,15 @@ cd d target = pretty . filterSolutions . generateSolutions
     generateSolutions = map (eval target) . candidates
     filterSolutions = flip State.runState (d, []) . Mnd.filterM review
 
-pretty ([], ((_, d), ts)) = p $ Mnd.liftM (flip (++) (" : " ++ show d)) $ Maybe.listToMaybe ts
+pretty ([], ((_, d), ts)) = p $ flip (++) (" : " ++ show d) <$> Maybe.listToMaybe ts
 pretty (s:_, _) = p $ Just $ show s ++ " : 0.0"
 
 p = putStrLn . (++) ",cd " . Maybe.fromMaybe "no solutions"
 
-candidates = concatMap trees . filter (not . null) . concatMap List.permutations . List.subsequences
+candidates = concatMap trees . filter (not . null) . concatMap List.permutations . List.sortOn length . List.subsequences
 
 trees (v:vs) = foldr trees' [L v] vs
+trees [] = []
 trees' v = concatMap (\t -> concatMap (\o -> insert o (L v) t) ops)
 
 eval target tree =
